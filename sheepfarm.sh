@@ -30,8 +30,13 @@ prepDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 function updatesheepituser {
   # update user credentials
   # only call updatesheepituser from a menu... do not use it in automation
+  #
+  # example:
+  # sheepituser="howkj1";
+  # sheepitkey="EjsndbGhL05UpZvPEgkoBcuBgNDlByEPQ8OtKJFg";
 
-  sheepituser=$(whiptail --inputbox "Enter your sheepit username" 8 78 user --title "Client Login User" \
+  # sheepituser=$(whiptail --inputbox "Enter your sheepit username" 8 78 user --title "Client Login User" \
+  sheepituser=$(whiptail --inputbox "Enter your sheepit username" 8 78 howkj1 --title "Client Login User" \
   3>&1 1>&2 2>&3)
   exitstatus=$?
   if [ $exitstatus = 0 ]; then
@@ -42,7 +47,8 @@ function updatesheepituser {
       echo "User selected Cancel."
   fi
   # echo "(Exit status was $exitstatus)"
-  sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 key --title "Client Login Key" \
+  # sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 key --title "Client Login Key" \
+  sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI --title "Client Login Key" \
   3>&1 1>&2 2>&3)
   exitstatus=$?
   if [ $exitstatus = 0 ]; then
