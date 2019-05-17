@@ -2,7 +2,7 @@
 [sheepit render farm](https://sheepit-renderfarm.com) cli tools for Linux / MacOSX
 
 
-SheepFarm Utilities Developed by:  
+SheepFarm Utilities Developed By:  
 @howkj1  
 https://github.com/howkj1/sheepitfarm
 
@@ -21,7 +21,31 @@ SheepFarm is a utility script to assist with running the community-driven distri
 * "Build" a render farm node by automatically installing the needed dependencies.
 * (coming soon...) select CPU or GPU rendering.
 
+---
+
 ![](v2019-5-16.gif)
+
+## Getting Started
+
+
+_note:_  
+This guide assumes you are running a \*nix (Linux/Unix/MacOSX) terminal.
+
+
+1. Download [sheepfarm.sh](https://github.com/howkj1/sheepitfarm/sheepfarm.sh)
+  - `git clone https://github.com/howkj1/sheepitfarm.git`
+  - `git clone git@github.com:howkj1/sheepitfarm.git`
+  - `wget https://github.com/howkj1/sheepitfarm/sheepfarm.sh -O sheepfarm.sh`
+2. Make sure sheepfarm.sh is executable
+  - `chmod +x ./sheepfarm.sh`
+3. Run the sheepfarm script
+  - `./sheepfarm.sh`
+  - If prompted, enter your sheepit-renderfarm.com username and client key
+  - The username and key is stored locally and will only need to be entered the first time using sheepfarm.sh . 
+     -Subsequent runs will re-use these settings until they are changed using the menu options.
+
+---
+
 
 ### System Requirements
 
@@ -58,21 +82,5 @@ While sheepfarm.sh may run perfectly on you machine, it comes with no warranty n
 ### License
 GPL v.2 in compliance with the official sheepit-client :
 https://github.com/laurent-clouet/sheepit-client
-
----
-
-## Getting Started
-_note:_  
-This guide assumes you are running a \*nix (Linux/Unix/MacOSX) terminal.
-1. Download [sheepfarm.sh](https://github.com/howkj1/sheepitfarm/sheepfarm.sh)
-  - `wget https://github.com/howkj1/sheepitfarm/sheepfarm.sh -O sheepfarm.sh`
-  - `git clone https://github.com/howkj1/sheepitfarm.git`
-  - `git clone git@github.com:howkj1/sheepitfarm.git`
-2. Make sure sheepfarm.sh is executable
-  - `chmod +x ./sheepfarm.sh`
-3. run the sheepfarm script
-  - `./sheepfarm.sh`
-  - if prompted, enter your sheepit-renderfarm.com username and client key
-  - the username and key is stored locally and will only need to be entered the first time using sheepfarm.sh . Subsequent runs will re-use these settings until they are changed using the menu options.
 
 ---
