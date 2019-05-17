@@ -194,9 +194,9 @@ function main_sheep_menu {
   RETVAL=$(whiptail --title "Make a selection and Enter" \
   --menu "Main Menu" 12 50 4 \
   "1." "Run the latest SheepIt -->" \
-  "2." "Build Rendering Machine -->" \
+  "2." "Configure client user+key -->" \
   "3." "Download Latest SheepIt -->" \
-  "4." "Configure client user+key -->" \
+  "4." "Build Rendering Machine -->" \
   "5." "Quit" \
   3>&1 1>&2 2>&3)
 
@@ -204,9 +204,9 @@ function main_sheep_menu {
   case $RETVAL in
       # a) echo "custom menu goes here"; whiptail --title "cutom menu" --msgbox "goes here" 10 50;;
       1.) farm_sheep;;
-      2.) sheep_prep;;
+      2.) updatesheepituser;;
       3.) update_sheepit;;
-      4.) updatesheepituser;;
+      4.) sheep_prep;;
       5.) echo "You have quit sheepfarm.";;
       *) echo "sheepfarm has quit.";
   esac
