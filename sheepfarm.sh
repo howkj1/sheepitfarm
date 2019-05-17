@@ -58,13 +58,8 @@ function updatesheepituser {
   else
       echo "User selected Cancel."
   fi
+  whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62;
 
-  if (whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62)
-  then
-    main_sheep_menu;
-  else
-    echo "You have quit sheepfarm." # quits right away
-  fi;
 }
 
 function preproutine {
