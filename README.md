@@ -2,7 +2,7 @@
 [sheepit render farm](https://sheepit-renderfarm.com) cli tools for Linux / MacOSX
 
 
-Developed by:  
+SheepFarm Utilities Developed by:  
 @howkj1  
 https://github.com/howkj1/sheepitfarm
 
@@ -23,13 +23,33 @@ SheepFarm is a utility script to assist with running the community-driven distri
 
 
 ### System Requirements
+
+* sheepfarm.sh is written in shell scripting language and is fairly portable. However, some/many commands may not behave as expected due to vast differences between shell environments and versions. Please try running sheepfarm.sh from bash >= 4.x.x before filing an issue.
+
+
+* sheepfarm.sh requirements include those of the SheepIt Render Farm java client.
+ - up to date java jre
+ - x64 based Intel or AMD CPU (ARM is not yet supported as of May 2019)
+ - 4GB or more RAM
+ - minimum 2GB or more free disk space
+
+
+* Recommended System Requirements
+ - 8GB+ RAM
+ - 4GB+ GPU RAM
+ - nVidia CUDA GPU (1050 or 1050 ti)
+ - 8GB+ free disk space
+
+
+---
+
 sheepfarm.sh is verified tested on :
 * Ubuntu 18.04
 * [bash 4.4.19(1)-release] x86_64-pc-linux-gnu
 * nVidia 1050 ti [eVGA 1050 ti SSC]
 * Intel Core i7 870 @ 2.93GHz
 
-* sheepfarm.sh is written in shell scripting language and is fairly portable. However, some/many commands may not behave as expected due to vast differences between shell environments and versions. Please try running sheepfarm.sh from bash >= 4.x.x before filing an issue.
+---
 
 ### Disclaimer
 While sheepfarm.sh may run perfectly on you machine, it comes with no warranty nor liability. Please test in a non-production environment to see if it suits your needs before deploying.
@@ -51,5 +71,7 @@ This guide assumes you are running a \*nix (Linux/Unix/MacOSX) terminal.
   - `chmod +x ./sheepfarm.sh`
 3. run the sheepfarm script
   - `./sheepfarm.sh`
+  - if prompted, enter your sheepit-renderfarm.com username and client key
+  - the username and key is stored locally and will only need to be entered the first time using sheepfarm.sh . Subsequent runs will re-use these settings until they are changed using the menu options.
 
 ---
