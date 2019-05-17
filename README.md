@@ -21,6 +21,7 @@ SheepFarm is a utility script to assist with running the community-driven distri
 * "Build" a render farm node by automatically installing the needed dependencies.
 * (coming soon...) select CPU or GPU rendering.
 
+![](s3://tirelesswake.com/Peek 2019-05-16 23-04.gif)
 
 ### System Requirements
 
