@@ -25,54 +25,6 @@ prepDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 ###### helper functions ######
 
-##############################################################################
-## official sheepit client help ##
-# Usage:
-#  --no-gpu                               : Don't detect GPUs
-#  --no-systray                           : Don't use systray
-#  --show-gpu                             : Print available CUDA devices and exit
-#  --verbose                              : Display log
-#  --version                              : Display application version
-#  -cache-dir /tmp/cache                  : Cache/Working directory. Caution,
-#                                           everything in it not related to the
-#                                           render-farm will be removed
-#  -compute-method CPU                    : CPU: only use cpu, GPU: only use gpu,
-#                                           CPU_GPU: can use cpu and gpu (not at
-#                                           the same time) if -gpu is not use it
-#                                           will not use the gpu
-#  -config VAL                            : Specify the configuration file
-#  -cores 3                               : Number of cores/threads to use for
-#                                           the render
-#  -extras VAL                            : Extras data push on the authentication
-#                                           request
-#  -gpu CUDA_0                            : Name of the GPU used for the render,
-#                                           for example CUDA_0 for Nvidia or
-#                                           OPENCL_0 for AMD/Intel card
-#  -login LOGIN                           : User's login
-#  -memory VAL                            : Maximum memory allow to be used by
-#                                           renderer, number with unit (800M, 2G,
-#                                           ...)
-#  -password PASSWORD                     : User's password
-#  -priority N                            : Set render process priority (19
-#                                           lowest to -19 highest)
-#  -proxy http://login:password@host:port : URL of the proxy
-#  -rendertime N                          : Maximum time allow for each frame (in
-#                                           minute)
-#  -request-time 2:00-8:30,17:00-23:00    : H1:M1-H2:M2,H3:M3-H4:M4 Use the 24h
-#                                           format. For example to request job
-#                                           between 2am-8.30am and 5pm-11pm you
-#                                           should do --request-time 2:00-8:30,17:
-#                                           00-23:00 Caution, it's the requesting
-#                                           job time to get a project not the
-#                                           working time
-#  -server URL                            : Render-farm server, default https://cl
-#                                           ient.sheepit-renderfarm.com
-#  -title VAL                             : Custom title for the GUI Client
-#  -ui VAL                                : Specify the user interface to use,
-#                                           default 'swing', available 'oneLine',
-#                                           'text', 'swing' (graphical)
-##############################################################################
-
 # whiptail --textbox sheepfarm.conf 12 50
 
 function updatecores {
@@ -82,17 +34,13 @@ function updatecores {
   #set cores using range (1-maxcores)
 }
 
-function getcores {
-  echo $cores >> sheepfarm.conf
-}
-
 function updategpu {
   #hardcoded until find another way
   gpuid=CUDA_0
 }
 
 function getgpu {
-  echo gpuid >> sheepfarm.conf
+  echo $gpuid >> sheepfarm.conf
 }
 
 function getavailableramkb {
@@ -103,118 +51,88 @@ function gettotalramkb {
   ramtotalkb=grep -oP "(?<=MemTotal:).*" /proc/meminfo | xargs | head -n1 | cut -d " " -f1
 }
 
-function updatesheepitconf {
-  # update ~/.sheepit.conf
-  # sheepituser="howkj1";
-  # sheepitkey="wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI";
+function updatecomputemethod {
+  computemethod=$(whiptail --title "CPU GPU Selection" --radiolist "Choose an option" 10 50 3 \
+  "CPU"  "CPU" ON \
+  "GPU"  "GPU" OFF \
+  "CPU_GPU"  "CPU+GPU" OFF \
+  3>&1 1>&2 2>&3)
 
-  if (whiptail --title "Notice" --yesno "If you continue, your sheepfarm.conf file will be overwritten immediately! \n\n                 Use at your own risk." --yes-button "yes" --no-button "cancel" 10 62)
-  then
-    #set date
-    echo "#"`date` > sheepfarm.conf
+  # case $computemethod in
+  #   CPU) updatecores ;;
+  #   GPU) updategpu  ;;
+  #   CPU_GPU) updatecores && updategpu;;
+  #   *) echo "exited before selecting compute method."
+  # esac
+}
 
-    computemethod=$(whiptail --title "CPU GPU Selection" --radiolist "Choose an option" 10 50 3 \
-    "CPU"  "CPU" ON \
-    "GPU"  "GPU" OFF \
-    "CPU_GPU"  "CPU+GPU" OFF \
-    3>&1 1>&2 2>&3)
-
-    # case $computemethod in
-    #   CPU) updatecores ;;
-    #   GPU) updategpu  ;;
-    #   CPU_GPU) updatecores && updategpu;;
-    #   *) echo "exited before selecting compute method."
-    # esac
-
-##############
-
-    #cores
-    getcores
-
-    #auto-signin
-    # echo "auto-signin=false" >> sheepfarm.conf
-
-    #ram
-    ramavailkb >> sheepfarm.conf
-
-    #compute-method
-    echo $computemethod >> sheepfarm.conf
-
-    #proxy
-      # echo "proxy=" >> sheepfarm.conf
-
-    #ui
-      #(swing,text,oneLine)
-    text
-
-    #hostname
-    echo `hostname` >> sheepfarm.conf
-
-    #compute-gpu
-    getcpu
-
-    #login
-      #sheepituser
-
-    #priority
-      #1-19... default 19
-    echo "19" >> sheepfarm.conf
-
-    #password
-      #sheepitkey
-
-##############
-
-    # java -jar ./sheepit-latest.jar -ui text -login bla -password blablabla -compute-method GPU -gpu CUDA_0
-
-
+function updatesheepituser {
   # sheepituser=$(whiptail --inputbox "Enter your sheepit username" 8 78 user --title "Client Login User" \
   sheepituser=$(whiptail --inputbox "Enter your sheepit username" 8 78 howkj1 --title "Client Login User" \
   3>&1 1>&2 2>&3)
   exitstatus=$?
   if [ $exitstatus = 0 ]; then
-      echo "User selected Ok and entered " $sheepituser
-      echo "$sheepituser" >> sheepfarm.conf ;
-            echo "updating sheepfarm.conf";
-  # echo "(Exit status was $exitstatus)"
-
-      # sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 key --title "Client Login Key" \
-      sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI --title "Client Login Key" \
-      3>&1 1>&2 2>&3)
-      exitstatus=$?
-      if [ $exitstatus = 0 ]; then
-          echo "User selected Ok and entered " $sheepitkey
-          echo "$sheepitkey" >> sheepfarm.conf ;
-          echo "updating sheepfarm.conf";
-      else
-          echo "User selected Cancel."
-      fi
-
+    echo "User selected Ok and entered " $sheepituser
+    echo "$sheepituser" >> sheepfarm.conf ;
+    echo "updating sheepfarm.conf";
+    # echo "(Exit status was $exitstatus)"
   else
     echo "User selected Cancel."
   fi
+}
+
+function updatesheepitkey {
+  # sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 key --title "Client Login Key" \
+  sheepitkey=$(whiptail --inputbox "Enter your sheepit key" 8 78 wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI --title "Client Login Key" \
+  3>&1 1>&2 2>&3)
+  exitstatus=$?
+  # if [ $exitstatus = 0 ]; then
+  #   echo "User selected Ok and entered " $sheepitkey
+  #   echo "$sheepitkey" >> sheepfarm.conf ;
+  #   echo "updating sheepfarm.conf";
+  # else
+  #   echo "User selected Cancel."
+  # fi
+}
+
+function updatesheepitconf {
+  # update ~/.sheepit.conf
+  # sheepituser="howkj1";
+  # sheepitkey="wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI";
+##############
+    #set date
+    echo "#"`date` > sheepfarm.conf
+    #cores
+    echo $getcores >> sheepfarm.conf
+    #auto-signin
+    echo "auto-signin=false" >> sheepfarm.conf
+    #ram
+    echo $ramavailkb >> sheepfarm.conf
+    #compute-method
+    echo $computemethod >> sheepfarm.conf
+    #proxy
+    echo "proxy=" >> sheepfarm.conf
+    #ui
+      #(swing,text,oneLine)
+    text
+    #hostname
+    echo `hostname` >> sheepfarm.conf
+    #compute-gpu
+    echo $cores >> sheepfarm.conf
+    #login
+    echo $sheepituser >> sheepfarm.conf
+    #priority
+      #1-19... default 19
+    echo "19" >> sheepfarm.conf
+    #password
+    echo $sheepitkey >> sheepfarm.conf
+##############
+
+    # java -jar ./sheepit-latest.jar -ui text -login bla -password blablabla -compute-method GPU -gpu CUDA_0
 
 whiptail --textbox sheepfarm.conf 12 50
   # whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62;
-
-else
-  echo "User selected Cancel." # quits right away
-fi
-}
-####### end of updatesheepitconf()
-
-function preproutine {
-  echo;
-  echo -ne "starting preproutine... \r";
-  echo -ne 'here we go... \r';
-  sleep .5;
-  echo -ne 'here we go... ... \r';
-  sleep .5;
-  echo -ne 'here we go... ... ... \r';
-  sleep .5;
-  echo -ne 'here we go... ... ... ...\r';
-  echo -ne '\n';
-}
+} ####### end of updatesheepitconf()
 
 function installGit {
   clear;
@@ -284,22 +202,16 @@ function readsheepfarmconf {
 ###### routines ######
 
 function sheep_prep {
-
-  preproutine;
-
   # sudo apt update;
   installGit;
   gitstuffdir;
   move_sheepfarm_to_gitstuff;
   install_openssh;
   ssh_keygen;
-
   install_javajre;
   install_sheepit;final
-
   install_tmux;
-
-  echo "prep has completed!";
+  echo "sheep_prep has completed!";
 }
 
 function update_sheepit {
@@ -362,3 +274,53 @@ else
 fi;
 ### end menu ###
 #########################
+
+
+
+##############################################################################
+## official sheepit client help ##
+# Usage:
+#  --no-gpu                               : Don't detect GPUs
+#  --no-systray                           : Don't use systray
+#  --show-gpu                             : Print available CUDA devices and exit
+#  --verbose                              : Display log
+#  --version                              : Display application version
+#  -cache-dir /tmp/cache                  : Cache/Working directory. Caution,
+#                                           everything in it not related to the
+#                                           render-farm will be removed
+#  -compute-method CPU                    : CPU: only use cpu, GPU: only use gpu,
+#                                           CPU_GPU: can use cpu and gpu (not at
+#                                           the same time) if -gpu is not use it
+#                                           will not use the gpu
+#  -config VAL                            : Specify the configuration file
+#  -cores 3                               : Number of cores/threads to use for
+#                                           the render
+#  -extras VAL                            : Extras data push on the authentication
+#                                           request
+#  -gpu CUDA_0                            : Name of the GPU used for the render,
+#                                           for example CUDA_0 for Nvidia or
+#                                           OPENCL_0 for AMD/Intel card
+#  -login LOGIN                           : User's login
+#  -memory VAL                            : Maximum memory allow to be used by
+#                                           renderer, number with unit (800M, 2G,
+#                                           ...)
+#  -password PASSWORD                     : User's password
+#  -priority N                            : Set render process priority (19
+#                                           lowest to -19 highest)
+#  -proxy http://login:password@host:port : URL of the proxy
+#  -rendertime N                          : Maximum time allow for each frame (in
+#                                           minute)
+#  -request-time 2:00-8:30,17:00-23:00    : H1:M1-H2:M2,H3:M3-H4:M4 Use the 24h
+#                                           format. For example to request job
+#                                           between 2am-8.30am and 5pm-11pm you
+#                                           should do --request-time 2:00-8:30,17:
+#                                           00-23:00 Caution, it's the requesting
+#                                           job time to get a project not the
+#                                           working time
+#  -server URL                            : Render-farm server, default https://cl
+#                                           ient.sheepit-renderfarm.com
+#  -title VAL                             : Custom title for the GUI Client
+#  -ui VAL                                : Specify the user interface to use,
+#                                           default 'swing', available 'oneLine',
+#                                           'text', 'swing' (graphical)
+##############################################################################
