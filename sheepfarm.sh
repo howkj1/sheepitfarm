@@ -35,13 +35,13 @@ function updatecores {
 }
 
 function updategpu {
-  #hardcoded until find another way
   # gpuid="CUDA_0"
+  # compute-gpu=CUDA_GeForce GTX 1050 Ti_0000\:2d\:00
   gpuid=$(java -jar ./sheepit-latest.jar --show-gpu |  head -n1 | cut -d ":" -f2- | sed -e 's/^[ \t]*//' | sed "s/:/\\\:/g")
 }
 
 function getgpu {
-  echo $gpuid >> sheepfarm.conf
+  echo $gpuid >> ~/.sheepit.conf
 }
 
 function getavailableramkb {
@@ -83,8 +83,8 @@ function updatesheepituser {
   exitstatus=$?
   if [ $exitstatus = 0 ]; then
     echo "User selected Ok and entered " $sheepituser
-    echo "$sheepituser" >> sheepfarm.conf ;
-    echo "updating sheepfarm.conf";
+    echo "$sheepituser" >> ~/.sheepit.conf ;
+    echo "updating ~/.sheepit.conf";
     # echo "(Exit status was $exitstatus)"
   else
     echo "User selected Cancel."
@@ -120,37 +120,37 @@ function updatesheepitconf {
   # sheepitkey="wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI";
 ##############
     #set date
-    echo "#"`date` > sheepfarm.conf;
+    echo "#"`date` > ~/.sheepit.conf;
     #cores
-    echo "cores="$corecount >> sheepfarm.conf
+    echo "cores="$corecount >> ~/.sheepit.conf
     #auto-signin
-    echo "auto-signin=false" >> sheepfarm.conf
+    echo "auto-signin=false" >> ~/.sheepit.conf
     #ram
-    echo "ram="$ramtotalkb"k" >> sheepfarm.conf
+    echo "ram="$ramtotalkb"k" >> ~/.sheepit.conf
     #compute-method
       #CPU CPU_GPU GPU
-    echo "compute-method="$computemethod >> sheepfarm.conf
+    echo "compute-method="$computemethod >> ~/.sheepit.conf
     #proxy
-    echo "proxy=" >> sheepfarm.conf
+    echo "proxy=" >> ~/.sheepit.conf
     #ui
       #(swing,text,oneLine)
-    echo "ui="$ui >> sheepfarm.conf
+    echo "ui="$ui >> ~/.sheepit.conf
     #hostname
-    echo "hostname="`hostname` >> sheepfarm.conf
+    echo "hostname="`hostname` >> ~/.sheepit.conf
     #compute-gpu
-    echo "compute-gpu="$gpuid >> sheepfarm.conf
+    echo "compute-gpu="$gpuid >> ~/.sheepit.conf
     #login
-    echo "login="$sheepituser >> sheepfarm.conf
+    echo "login="$sheepituser >> ~/.sheepit.conf
     #priority
       #1-19... default 19
-    echo "priority=""19" >> sheepfarm.conf
+    echo "priority=""19" >> ~/.sheepit.conf
     #password
-    echo "password="$sheepitkey >> sheepfarm.conf
+    echo "password="$sheepitkey >> ~/.sheepit.conf
 ##############
 
     # java -jar ./sheepit-latest.jar -ui text -login bla -password blablabla -compute-method GPU -gpu CUDA_0
 
-whiptail --textbox sheepfarm.conf 20 70
+whiptail --textbox ~/.sheepit.conf 20 70
   # whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62;
 } ####### end of updatesheepitconf()
 
@@ -211,12 +211,12 @@ function install_tmux {
 
 function readsheepfarmconf {
   #read username & key from file
-  exec 6< sheepfarm.conf
+  exec 6< ~/.sheepit.conf
   IFS="=" read sheepituser <&6
   IFS="=" read sheepitkey <&6
   exec 6<&-
-  echo " read user as $sheepituser from sheepfarm.conf "
-  echo " read key as $sheepitkey from sheepfarm.conf "
+  echo " read user as $sheepituser from ~/.sheepit.conf "
+  echo " read key as $sheepitkey from ~/.sheepit.conf "
 }
 
 function update_sheepit {
@@ -251,8 +251,8 @@ function farm_sheep {
   # mv ~/sheepit-client* ~/old-sheepit/;
   update_sheepit;
   # updatesheepitconf;
-  [ -f ./sheepfarm.conf ] && readsheepfarmconf;
-  [ ! -f "./sheepfarm.conf" ] && updatesheepitconf;
+  [ -f ~/.sheepit.conf ] && readsheepfarmconf;
+  [ ! -f "~/.sheepit.conf" ] && updatesheepitconf;
   # SHEEPIT="$(printf "%s\n" sheep* | head -1)";
   SHEEPIT="$(printf "%s\n" sheepit-latest.jar)";
   echo "I Am The Machine! Baaa!";
