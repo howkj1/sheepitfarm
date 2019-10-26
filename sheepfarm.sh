@@ -19,7 +19,7 @@ actsellistbox=white,brown
 
 ####    imports    ####
 prepDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
-[ -f ~/.sheepit.conf ] && . ~/.sheepit.conf --source-only ;
+#[ -f ~/.sheepit.conf ] && . ~/.sheepit.conf --source-only ;
 # . $prepDIR/sheepfarm.lib --source-only;
 #### end of imports ####
 
@@ -30,13 +30,14 @@ prepDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 function updatecores {
   corecount=$(grep -c ^processor /proc/cpuinfo)
   #defaults to maximum
-  cores=$corecount
+  # cores=$corecount
   #set cores using range (1-maxcores)
 }
 
 function updategpu {
   #hardcoded until find another way
-  gpuid=CUDA_0
+  # gpuid="CUDA_0"
+  gpuid=$(java -jar ./sheepit-latest.jar --show-gpu |  head -n1 | cut -d ":" -f2- | sed -e 's/^[ \t]*//' | sed "s/:/\\\:/g")
 }
 
 function getgpu {
@@ -44,11 +45,12 @@ function getgpu {
 }
 
 function getavailableramkb {
-  ramavailkb=grep -oP "(?<=MemAvailable:).*" /proc/meminfo | xargs | head -n1 | cut -d " " -f1
+  ramavailkb=$(grep -oP "(?<=MemAvailable:).*" /proc/meminfo | xargs | head -n1 | cut -d " " -f1)
 }
 
 function gettotalramkb {
-  ramtotalkb=grep -oP "(?<=MemTotal:).*" /proc/meminfo | xargs | head -n1 | cut -d " " -f1
+  ramtotalkb=$(grep -oP "(?<=MemTotal:).*" /proc/meminfo | xargs | head -n1 | cut -d " " -f1)
+  # ramtotalkb=$(vmstat -s | awk '{ print $1 }')
 }
 
 function updatecomputemethod {
@@ -64,6 +66,14 @@ function updatecomputemethod {
   #   CPU_GPU) updatecores && updategpu;;
   #   *) echo "exited before selecting compute method."
   # esac
+}
+
+function updateuimethod {
+  ui=$(whiptail --title "SheepIt UI Selection" --radiolist "Choose an option" 10 50 3 \
+  "text"  "cli text" ON \
+  "swing"  "graphical ui" OFF \
+  "oneLine"  "cli one line" OFF \
+  3>&1 1>&2 2>&3)
 }
 
 function updatesheepituser {
@@ -97,40 +107,50 @@ function updatesheepitkey {
 
 function updatesheepitconf {
   # update ~/.sheepit.conf
+  updatecores;
+  updategpu;
+  getgpu;
+  gettotalramkb;
+  updatecomputemethod;
+  updateuimethod;
+  updatesheepituser;
+  updatesheepitkey;
+
   # sheepituser="howkj1";
   # sheepitkey="wFUBdMExz9nxtuJOsjWjQnsAc0aHngJpimqNqJCI";
 ##############
     #set date
-    echo "#"`date` > sheepfarm.conf
+    echo "#"`date` > sheepfarm.conf;
     #cores
-    echo $getcores >> sheepfarm.conf
+    echo "cores="$corecount >> sheepfarm.conf
     #auto-signin
     echo "auto-signin=false" >> sheepfarm.conf
     #ram
-    echo $ramavailkb >> sheepfarm.conf
+    echo "ram="$ramtotalkb"k" >> sheepfarm.conf
     #compute-method
-    echo $computemethod >> sheepfarm.conf
+      #CPU CPU_GPU GPU
+    echo "compute-method="$computemethod >> sheepfarm.conf
     #proxy
     echo "proxy=" >> sheepfarm.conf
     #ui
       #(swing,text,oneLine)
-    text
+    echo "ui="$ui >> sheepfarm.conf
     #hostname
-    echo `hostname` >> sheepfarm.conf
+    echo "hostname="`hostname` >> sheepfarm.conf
     #compute-gpu
-    echo $cores >> sheepfarm.conf
+    echo "compute-gpu="$gpuid >> sheepfarm.conf
     #login
-    echo $sheepituser >> sheepfarm.conf
+    echo "login="$sheepituser >> sheepfarm.conf
     #priority
       #1-19... default 19
-    echo "19" >> sheepfarm.conf
+    echo "priority=""19" >> sheepfarm.conf
     #password
-    echo $sheepitkey >> sheepfarm.conf
+    echo "password="$sheepitkey >> sheepfarm.conf
 ##############
 
     # java -jar ./sheepit-latest.jar -ui text -login bla -password blablabla -compute-method GPU -gpu CUDA_0
 
-whiptail --textbox sheepfarm.conf 12 50
+whiptail --textbox sheepfarm.conf 20 70
   # whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62;
 } ####### end of updatesheepitconf()
 
@@ -192,11 +212,21 @@ function install_tmux {
 function readsheepfarmconf {
   #read username & key from file
   exec 6< sheepfarm.conf
-  read sheepituser <&6
-  read sheepitkey <&6
+  IFS="=" read sheepituser <&6
+  IFS="=" read sheepitkey <&6
   exec 6<&-
   echo " read user as $sheepituser from sheepfarm.conf "
   echo " read key as $sheepitkey from sheepfarm.conf "
+}
+
+function update_sheepit {
+  # sheepit render farm client
+  echo "";
+  echo -en "downloading latest sheepit render client\r";
+  wget --no-check-certificate https://sheepit-renderfarm.com/media/applet/client-latest.php -O sheepit-latest.jar
+  #wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/sheepit-client-5.658.2896.jar;
+  # wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/client-latest.php;
+  echo "latest sheepit client installed.                    ";
 }
 
 ###### routines ######
@@ -209,19 +239,9 @@ function sheep_prep {
   install_openssh;
   ssh_keygen;
   install_javajre;
-  install_sheepit;final
+  update_sheepit;
   install_tmux;
   echo "sheep_prep has completed!";
-}
-
-function update_sheepit {
-  # sheepit render farm client
-  echo "";
-  echo -en "downloading latest sheepit render client\r";
-  wget --no-check-certificate https://sheepit-renderfarm.com/media/applet/client-latest.php -O sheepit-latest.jar
-  #wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/sheepit-client-5.658.2896.jar;
-  # wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/client-latest.php;
-  echo "latest sheepit client installed.                    ";
 }
 
 function farm_sheep {
