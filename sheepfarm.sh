@@ -36,7 +36,8 @@ function updatecores {
 
 function updategpu {
   #hardcoded until find another way
-  gpuid="CUDA_0"
+  # gpuid="CUDA_0"
+  gpuid=$(java -jar ./sheepit-latest.jar --show-gpu |  head -n1 | cut -d ":" -f2- | sed -e 's/^[ \t]*//' | sed "s/:/\\\:/g")
 }
 
 function getgpu {
