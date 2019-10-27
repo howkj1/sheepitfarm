@@ -211,12 +211,15 @@ function install_tmux {
 
 function readsheepfarmconf {
   #read username & key from file
-  exec 6< ~/.sheepit.conf
-  IFS="=" read sheepituser <&6
-  IFS="=" read sheepitkey <&6
-  exec 6<&-
-  echo " read user as $sheepituser from ~/.sheepit.conf "
-  echo " read key as $sheepitkey from ~/.sheepit.conf "
+  #this provides console output compared to the whiptail output in other functions
+  # exec 6< ~/.sheepit.conf
+  # IFS="=" read sheepituser <&6
+  # IFS="=" read sheepitkey <&6
+  # exec 6<&-
+  # echo " read user as $sheepituser from ~/.sheepit.conf "
+  # echo " read key as $sheepitkey from ~/.sheepit.conf "
+  [ -f ~/.sheepit.conf ] && echo "" && printf "%s\n" ~/.sheepit.conf && cat ~/.sheepit.conf && echo "";
+  [ ! -f ~/.sheepit.conf ] && echo "---no config file found---";
 }
 
 function update_sheepit {
@@ -249,16 +252,18 @@ function farm_sheep {
   # cd ~/;
   # mkdir ~/old-sheepit;
   # mv ~/sheepit-client* ~/old-sheepit/;
-  update_sheepit;
   # updatesheepitconf;
   [ -f ~/.sheepit.conf ] && readsheepfarmconf;
-  [ ! -f "~/.sheepit.conf" ] && updatesheepitconf;
+  [ ! -f ~/.sheepit.conf ] && updatesheepitconf;
   # SHEEPIT="$(printf "%s\n" sheep* | head -1)";
+  update_sheepit;
   SHEEPIT="$(printf "%s\n" sheepit-latest.jar)";
   echo "I Am The Machine! Baaa!";
   echo "now running: "
-  echo "java -jar $SHEEPIT -ui text -login $sheepituser -password $sheepitkey ;"
-  java -jar $SHEEPIT -ui text -login $sheepituser -password $sheepitkey ;
+  # echo "java -jar $SHEEPIT -ui text -login $sheepituser -password $sheepitkey ;"
+  echo "java -jar $SHEEPIT -config ~/.sheepit.conf;"
+  # java -jar $SHEEPIT -ui text -login $sheepituser -password $sheepitkey ;
+  java -jar $SHEEPIT -config ~/.sheepit.conf;
   #######################
 }
 
