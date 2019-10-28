@@ -5,6 +5,8 @@
 #
 # git clone https://github.com/howkj1/sheepfarm.git
 #
+# https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail
+#
 
 ## begin magical code land ##
 export NEWT_COLORS='
@@ -82,9 +84,9 @@ function updatesheepituser {
   3>&1 1>&2 2>&3)
   exitstatus=$?
   if [ $exitstatus = 0 ]; then
-    echo "User selected Ok and entered " $sheepituser
+    # echo "User selected Ok and entered " $sheepituser
     echo "$sheepituser" >> ~/.sheepit.conf ;
-    echo "updating ~/.sheepit.conf";
+    # echo "updating ~/.sheepit.conf";
     # echo "(Exit status was $exitstatus)"
   else
     echo "User selected Cancel."
@@ -105,7 +107,13 @@ function updatesheepitkey {
   # fi
 }
 
+
 function updatesheepitconf {
+
+  #### Intro Info Menu + Disclaimer ####
+  if (whiptail --title "Disclaimer" --yesno "Your ~/.sheepit.conf will be over-written if you continue. \n\n                 " --yes-button "Generate" --no-button "Cancel" 10 62)
+  then
+
   # update ~/.sheepit.conf
   updatecores;
   updategpu;
@@ -150,8 +158,16 @@ function updatesheepitconf {
 
     # java -jar ./sheepit-latest.jar -ui text -login bla -password blablabla -compute-method GPU -gpu CUDA_0
 
-whiptail --textbox ~/.sheepit.conf 20 70
+    whiptail --title "~/.sheepit.conf" --textbox ~/.sheepit.conf 20 70
   # whiptail --title "Update Client Login" --yesno "sheepfarm.conf has been updated. \n\n username: $sheepituser \n and key: $sheepitkey" --yes-button "Continue" --no-button "quit" 10 62;
+
+    main_sheep_menu;
+  else
+      main_sheep_menu;
+    # echo "You have quit sheepfarm." # quits right away
+  fi;
+  ### end menu ###
+  #########################
 } ####### end of updatesheepitconf()
 
 function installGit {
@@ -230,6 +246,8 @@ function update_sheepit {
   #wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/sheepit-client-5.658.2896.jar;
   # wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/client-latest.php;
   echo "latest sheepit client installed.                    ";
+  whiptail --msgbox "latest sheepit client installed." 10 70;
+  main_sheep_menu;
 }
 
 ###### routines ######
