@@ -250,6 +250,18 @@ function update_sheepit {
   main_sheep_menu;
 }
 
+function update_sheepit_silent {
+  # sheepit render farm client
+  echo "";
+  echo -en "downloading latest sheepit render client\r";
+  wget --no-check-certificate https://sheepit-renderfarm.com/media/applet/client-latest.php -O sheepit-latest.jar
+  #wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/sheepit-client-5.658.2896.jar;
+  # wget -P ~/ https://www.sheepit-renderfarm.com/media/applet/client-latest.php;
+  echo "latest sheepit client installed.                    ";
+  # whiptail --msgbox "latest sheepit client installed." 10 70;
+  # main_sheep_menu;
+}
+
 ###### routines ######
 
 function sheep_prep {
@@ -274,7 +286,7 @@ function farm_sheep {
   [ -f ~/.sheepit.conf ] && readsheepfarmconf;
   [ ! -f ~/.sheepit.conf ] && updatesheepitconf;
   # SHEEPIT="$(printf "%s\n" sheep* | head -1)";
-  update_sheepit;
+  update_sheepit_silent;
   SHEEPIT="$(printf "%s\n" sheepit-latest.jar)";
   echo "I Am The Machine! Baaa!";
   echo "now running: "
